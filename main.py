@@ -6,17 +6,8 @@ import pandas as pd
 from collections import namedtuple
 from werkzeug.datastructures import Headers
 from werkzeug.wrappers import Response
-
-
-UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-
 app= Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def allowed_file(filename):
-  return '.' in filename and \
-         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET'])
 def upload_file():
@@ -33,7 +24,7 @@ def processpdf(file):
     for page in pdf.pages:
       text = page.extract_text()
       for line in text.split('\n'):
-        print(line)
+        # print(line)
         comp = company_re.search(line)
         if comp:
           vend_no, vend_name = comp.group(1), comp.group(2)
@@ -52,9 +43,9 @@ def processpdf(file):
           tot = float(line.split()[2].replace(',', ''))
           total_check += tot
   df = pd.DataFrame(lines)
-  df.head()
+  # df.head()
 
-  df.info()
+  # df.info()
 
   df['inv_date'] = pd.to_datetime(df['inv_date'])
   df['due_date'] = pd.to_datetime(df['due_date'])
@@ -63,7 +54,7 @@ def processpdf(file):
 
   df['open_amt_bc'].sum()
 
-  total_check
+  # total_check
 
   return df
 
@@ -76,10 +67,7 @@ def upload():
     headers = Headers()
     headers.set('Content-Disposition', 'attachment', filename='log.csv')
 
-  return Response(
-        stream_with_context(data.to_csv(index=False)),
-        mimetype='text/csv', headers=headers
-    )
+  return Response(stream_with_context(data.to_csv(index=False)), mimetype='text/csv', headers=headers)
 
 
 
